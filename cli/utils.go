@@ -49,6 +49,6 @@ func getMetadata(ctx context.Context, p plugin.Plugin) *plugin.GetMetadataRespon
 
 // deliverError print to standard error and then return nonzero exit code
 func deliverError(message string) {
-	_, _ = fmt.Fprintf(os.Stderr, message)
+	_, _ = fmt.Fprintln(os.Stderr, message)
 	os.Exit(1)
 }

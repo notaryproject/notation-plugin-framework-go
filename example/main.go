@@ -18,5 +18,5 @@ func main() {
 	}
 
 	// Create executable
-	cli.New(plugin).Execute(ctx, os.Args)
+	cli.New("example", plugin).Execute(ctx, os.Args)
 }

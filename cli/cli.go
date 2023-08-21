@@ -19,19 +19,21 @@ import (
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
-type Cli struct {
-	syntax string
-	pl     plugin.Plugin
+type CLI struct {
+	name string
+	pl   plugin.Plugin
 }
 
-// New creates a new Cli using given plugin
-func New(pl plugin.Plugin) *Cli {
-	return &Cli{pl: pl}
+// New creates a new CLI using given plugin
+func New(executableName string, pl plugin.Plugin) *CLI {
+	return &CLI{
+		name: executableName,
+		pl:   pl}
 }
 
 // Execute is main controller that reads/validates commands, parses input, executes relevant plugin functions
 // and returns corresponding output.
-func (c Cli) Execute(ctx context.Context, args []string) {
+func (c CLI) Execute(ctx context.Context, args []string) {
 	c.validateArgs(ctx, args)
 
 	rescueStdOut := deferStdout()
@@ -92,16 +94,8 @@ func (c Cli) Execute(ctx context.Context, args []string) {
 	fmt.Println(op)
 }
 
-// printHelp prints help text for executable
-func (c Cli) printHelp(ctx context.Context) {
-	md := getMetadata(ctx, c.pl)
-	args := getValidArgsString(md)
-
-	fmt.Printf("%s - %s\n Usage:%s %s", md.Name, md.Description, c.syntax, args)
-}
-
 // printVersion prints version of executable
-func (c Cli) printVersion(ctx context.Context) {
+func (c CLI) printVersion(ctx context.Context) {
 	md := getMetadata(ctx, c.pl)
 
 	fmt.Printf("%s - %s\nVersion: %s", md.Name, md.Description, md.Version)
@@ -109,10 +103,10 @@ func (c Cli) printVersion(ctx context.Context) {
 }
 
 // validateArgs validate commands/arguments passed to executable.
-func (c Cli) validateArgs(ctx context.Context, args []string) {
+func (c CLI) validateArgs(ctx context.Context, args []string) {
 	md := getMetadata(ctx, c.pl)
 	if !(len(args) == 2 && slices.Contains(getValidArgs(md), args[1])) {
-		deliverError(fmt.Sprintf("Invalid command, valid choices are %s %s", c.syntax, getValidArgsString(md)))
+		deliverError(fmt.Sprintf("Invalid command, valid choices are: %s %s", c.name, getValidArgsString(md)))
 	}
 }
 

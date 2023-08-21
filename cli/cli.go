@@ -143,7 +143,7 @@ func unmarshalRequest(ctx context.Context, request any) error {
 func marshalResponse(ctx context.Context, response any, err error) (string, *plugin.Error) {
 	logger := log.GetLogger(ctx)
 	if err != nil {
-		logger.Errorf("%s error :%v", reflect.TypeOf(response), err)
+		logger.Errorf("%s error: %v", reflect.TypeOf(response), err)
 		if plgErr, ok := err.(*plugin.Error); ok {
 			return "", plgErr
 		}
@@ -157,6 +157,6 @@ func marshalResponse(ctx context.Context, response any, err error) (string, *plu
 		return "", plugin.NewGenericErrorf(plugin.ErrorMsgMalformedOutputFmt, err.Error())
 	}
 
-	logger.Debugf("%s response :%s", reflect.TypeOf(response), jsonResponse)
+	logger.Debugf("%s response: %s", reflect.TypeOf(response), jsonResponse)
 	return string(jsonResponse), nil
 }

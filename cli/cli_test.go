@@ -106,27 +106,6 @@ func setupReader(content string) func() {
 	}
 }
 
-//func TestUnmarshalRequest(t *testing.T) {
-//	ctx := context.Background()
-//	req := plugin.GenerateSignatureRequest{
-//		ContractVersion: "1.0",
-//		KeyID:           "keyId",
-//		KeySpec:         plugin.KeySpecEC384,
-//		Hash:            plugin.HashAlgorithmSHA384,
-//		Payload:         []byte("payload"),
-//	}
-//
-//	err := unmarshalRequest(ctx, req)
-//	if err != nil {
-//		t.Errorf("Error found in marshalResponse: %v", err)
-//	}
-//
-//	expected := "{\"signatureEnvelope\":\"ZW52ZWxvcGU=\",\"signatureEnvelopeType\":\"envelopeType\",\"annotations\":{\"key\":\"value\"}}"
-//	if !strings.EqualFold("{\"signatureEnvelope\":\"ZW52ZWxvcGU=\",\"signatureEnvelopeType\":\"envelopeType\",\"annotations\":{\"key\":\"value\"}}", op) {
-//		t.Errorf("Not equal: \n expected: %s\n actual : %s", expected, op)
-//	}
-//}
-
 func assertErr(t *testing.T, err error, code plugin.Code) {
 	if plgErr, ok := err.(*plugin.Error); ok {
 		if reflect.DeepEqual(code, plgErr.ErrCode) {

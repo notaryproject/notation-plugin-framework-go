@@ -33,7 +33,7 @@ func New(executableName string, pl plugin.Plugin) *CLI {
 
 // Execute is main controller that reads/validates commands, parses input, executes relevant plugin functions
 // and returns corresponding output.
-func (c CLI) Execute(ctx context.Context, args []string) {
+func (c *CLI) Execute(ctx context.Context, args []string) {
 	c.validateArgs(ctx, args)
 
 	rescueStdOut := deferStdout()
@@ -95,7 +95,7 @@ func (c CLI) Execute(ctx context.Context, args []string) {
 }
 
 // printVersion prints version of executable
-func (c CLI) printVersion(ctx context.Context) {
+func (c *CLI) printVersion(ctx context.Context) {
 	md := getMetadata(ctx, c.pl)
 
 	fmt.Printf("%s - %s\nVersion: %s", md.Name, md.Description, md.Version)
@@ -103,7 +103,7 @@ func (c CLI) printVersion(ctx context.Context) {
 }
 
 // validateArgs validate commands/arguments passed to executable.
-func (c CLI) validateArgs(ctx context.Context, args []string) {
+func (c *CLI) validateArgs(ctx context.Context, args []string) {
 	md := getMetadata(ctx, c.pl)
 	if !(len(args) == 2 && slices.Contains(getValidArgs(md), args[1])) {
 		deliverError(fmt.Sprintf("Invalid command, valid choices are: %s %s", c.name, getValidArgsString(md)))
@@ -111,7 +111,7 @@ func (c CLI) validateArgs(ctx context.Context, args []string) {
 }
 
 // deferStdout is used to make sure that nothing get emitted to stdout and stderr until intentionally rescued.
-// This is required to make sure that the plugin or its dependency doesn't interferes with notation <-> plugin communication
+// This is required to make sure that the plugin or its dependency doesn't interfere with notation <-> plugin communication
 func deferStdout() func() {
 	null, _ := os.Open(os.DevNull)
 	sout := os.Stdout

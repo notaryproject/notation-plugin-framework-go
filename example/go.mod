@@ -1,4 +1,4 @@
-module github.com/priteshbandi/notation-plugin-base/example
+module github.com/notaryproject/notation-plugin-framework-go/example
 
 go 1.20
 

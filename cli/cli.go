@@ -113,6 +113,7 @@ func (c *CLI) validateArgs(ctx context.Context, args []string) {
 // deferStdout is used to make sure that nothing get emitted to stdout and stderr until intentionally rescued.
 // This is required to make sure that the plugin or its dependency doesn't interfere with notation <-> plugin communication
 func deferStdout() func() {
+	// Ignoring error because we dont want plugin to fail if `os.DevNull` is misconfigured.
 	null, _ := os.Open(os.DevNull)
 	sout := os.Stdout
 	serr := os.Stderr

@@ -1,14 +1,12 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 
 	"github.com/notaryproject/notation-plugin-framework-go/internal/slices"
-	"github.com/notaryproject/notation-plugin-framework-go/log"
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
@@ -35,16 +33,6 @@ func getValidArgs(md *plugin.GetMetadataResponse) []string {
 	}
 	sort.Strings(opts)
 	return opts
-}
-
-func getMetadata(ctx context.Context, p plugin.Plugin) *plugin.GetMetadataResponse {
-	md, err := p.GetMetadata(ctx, &plugin.GetMetadataRequest{})
-	if err != nil {
-		logger := log.GetLogger(ctx)
-		logger.Errorf("GetMetadataRequest error :%v", err)
-		deliverError("Error: Failed to get plugin metadata.")
-	}
-	return md
 }
 
 // deliverError print to standard error and then return nonzero exit code

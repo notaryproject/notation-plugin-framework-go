@@ -1,18 +1,7 @@
-// Package log provides logging functionality. To enable logging option should implement the
-// log.Logger interface and include it in context by calling log.WithLogger.
+// Package log provides logging functionality.
 // 3rd party loggers that implement log.Logger: github.com/uber-go/zap.SugaredLogger
 // and github.com/sirupsen/logrus.Logger.
 package log
-
-import "context"
-
-type contextKey int
-
-// loggerKey is the associated key type for logger entry in context.
-const loggerKey contextKey = iota
-
-// Discard is a discardLogger that is used to disenable logging.
-var Discard Logger = &discardLogger{}
 
 // Logger is implemented by users and/or 3rd party loggers.
 // For example, github.com/uber-go/zap.SugaredLogger
@@ -57,58 +46,4 @@ type Logger interface {
 	// Errorln logs an error level message. Spaces are always added between
 	// operands.
 	Errorln(args ...interface{})
-}
-
-// WithLogger is used by callers to set the Logger in the context.
-// It enables logging option in notation.
-func WithLogger(ctx context.Context, logger Logger) context.Context {
-	return context.WithValue(ctx, loggerKey, logger)
-}
-
-// GetLogger is used to retrieve the Logger from the context.
-func GetLogger(ctx context.Context) Logger {
-	if logger, ok := ctx.Value(loggerKey).(Logger); ok {
-		return logger
-	}
-	return Discard
-}
-
-// discardLogger implements Logger but logs nothing. It is used when user
-// disenabled logging option in notation, i.e. loggerKey is not in the context.
-type discardLogger struct{}
-
-func (dl *discardLogger) Debug(args ...interface{}) {
-}
-
-func (dl *discardLogger) Debugf(format string, args ...interface{}) {
-}
-
-func (dl *discardLogger) Debugln(args ...interface{}) {
-}
-
-func (dl *discardLogger) Info(args ...interface{}) {
-}
-
-func (dl *discardLogger) Infof(format string, args ...interface{}) {
-}
-
-func (dl *discardLogger) Infoln(args ...interface{}) {
-}
-
-func (dl *discardLogger) Warn(args ...interface{}) {
-}
-
-func (dl *discardLogger) Warnf(format string, args ...interface{}) {
-}
-
-func (dl *discardLogger) Warnln(args ...interface{}) {
-}
-
-func (dl *discardLogger) Error(args ...interface{}) {
-}
-
-func (dl *discardLogger) Errorf(format string, args ...interface{}) {
-}
-
-func (dl *discardLogger) Errorln(args ...interface{}) {
 }

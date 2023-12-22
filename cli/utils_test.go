@@ -1,14 +1,10 @@
 package cli
 
 import (
-	"context"
-	"os"
-	"os/exec"
 	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/notaryproject/notation-plugin-framework-go/cli/internal/mock"
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
@@ -67,28 +63,4 @@ func TestGetValidArgs(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestGetMetadata(t *testing.T) {
-	pl := mock.NewPlugin(false)
-	ctx := context.Background()
-
-	getMetadata(ctx, pl)
-}
-
-func TestGetMetadataError(t *testing.T) {
-	if os.Getenv("TEST_OS_EXIT") == "1" {
-		pl := mock.NewPlugin(true)
-		ctx := context.Background()
-
-		getMetadata(ctx, pl)
-		return
-	}
-	cmd := exec.Command(os.Args[0], "-test.run=TestGetMetadataError")
-	cmd.Env = append(os.Environ(), "TEST_OS_EXIT=1")
-	err := cmd.Run()
-	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
-		return
-	}
-	t.Fatalf("process ran with err %v, want exit status 1", err)
 }

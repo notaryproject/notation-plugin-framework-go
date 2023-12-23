@@ -13,10 +13,15 @@ func main() {
 	// Initialize plugin
 	plugin, err := NewExamplePlugin()
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Failed to initialize plugin")
+		_, _ = fmt.Fprintf(os.Stderr, "failed to initialize plugin: %v", err)
 		os.Exit(2)
 	}
 
 	// Create executable
-	cli.New("example", plugin).Execute(ctx, os.Args)
+	pluginCli, err := cli.New("notation-example", plugin)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to create executable: %v", err)
+		os.Exit(3)
+	}
+	pluginCli.Execute(ctx, os.Args)
 }

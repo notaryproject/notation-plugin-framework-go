@@ -5,14 +5,15 @@ import (
 	"fmt"
 )
 
-type Code string
+type ErrorCode string
 
 const (
-	CodeValidation                 Code = "VALIDATION_ERROR"
-	CodeUnsupportedContractVersion Code = "UNSUPPORTED_CONTRACT_VERSION"
-	CodeAccessDenied               Code = "ACCESS_DENIED"
-	CodeThrottled                  Code = "THROTTLED"
-	CodeGeneric                    Code = "ERROR"
+	ErrorCodeValidation                 ErrorCode = "VALIDATION_ERROR"
+	ErrorCodeUnsupportedContractVersion ErrorCode = "UNSUPPORTED_CONTRACT_VERSION"
+	ErrorCodeAccessDenied               ErrorCode = "ACCESS_DENIED"
+	ErrorCodeTimeout                    ErrorCode = "TIMEOUT"
+	ErrorCodeThrottled                  ErrorCode = "THROTTLED"
+	ErrorCodeGeneric                    ErrorCode = "ERROR"
 )
 
 const (
@@ -23,39 +24,40 @@ const (
 // Error is used when the signature associated is no longer
 // valid.
 type Error struct {
-	ErrCode Code   `json:"errorCode"`
-	Msg     string `json:"errorMessage"`
+	ErrCode  ErrorCode         `json:"errorCode"`
+	Message  string            `json:"errorMessage,omitempty"`
+	Metadata map[string]string `json:"errorMetadata,omitempty"`
 }
 
-func NewError(code Code, msg string) *Error {
+func NewError(code ErrorCode, msg string) *Error {
 	return &Error{
 		ErrCode: code,
-		Msg:     msg,
+		Message: msg,
 	}
 }
 
 func NewGenericError(msg string) *Error {
-	return NewError(CodeGeneric, msg)
+	return NewError(ErrorCodeGeneric, msg)
 }
 
 func NewGenericErrorf(format string, msg string) *Error {
-	return NewError(CodeGeneric, fmt.Sprintf(format, msg))
+	return NewError(ErrorCodeGeneric, fmt.Sprintf(format, msg))
 }
 
 func NewUnsupportedError(msg string) *Error {
-	return NewError(CodeValidation, msg+" is not supported")
+	return NewError(ErrorCodeValidation, msg+" is not supported")
 }
 
 func NewValidationError(msg string) *Error {
-	return NewError(CodeValidation, msg)
+	return NewError(ErrorCodeValidation, msg)
 }
 
 func NewValidationErrorf(format string, msg string) *Error {
-	return NewError(CodeValidation, fmt.Sprintf(format, msg))
+	return NewError(ErrorCodeValidation, fmt.Sprintf(format, msg))
 }
 
 func NewUnsupportedContractVersionError(version string) *Error {
-	return NewError(CodeUnsupportedContractVersion, fmt.Sprintf("%q is not a supported notary plugin contract version", version))
+	return NewError(ErrorCodeUnsupportedContractVersion, fmt.Sprintf("%q is not a supported notary plugin contract version", version))
 }
 
 func NewJSONParsingError(msg string) *Error {

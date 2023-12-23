@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/notaryproject/notation-plugin-framework-go/internal/slices"
 	"github.com/notaryproject/notation-plugin-framework-go/log"
@@ -26,17 +27,21 @@ type CLI struct {
 }
 
 // New creates a new CLI using given plugin
-func New(executableName string, pl plugin.Plugin) *CLI {
+func New(executableName string, pl plugin.Plugin) (*CLI, error) {
 	return NewWithLogger(executableName, pl, &discardLogger{})
 }
 
 // NewWithLogger creates a new CLI using given plugin and logger
-func NewWithLogger(executableName string, pl plugin.Plugin, l log.Logger) *CLI {
+func NewWithLogger(executableName string, pl plugin.Plugin, l log.Logger) (*CLI, error) {
+	if strings.HasPrefix(executableName, plugin.BinaryPrefix) {
+		return nil, fmt.Errorf("executable name must start with prefix: %s", plugin.BinaryPrefix)
+	}
+
 	return &CLI{
 		name:   executableName,
 		pl:     pl,
 		logger: l,
-	}
+	}, nil
 }
 
 // Execute is main controller that reads/validates commands, parses input, executes relevant plugin functions

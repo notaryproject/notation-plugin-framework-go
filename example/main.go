@@ -20,7 +20,7 @@ func main() {
 	// Create executable
 	pluginCli, err := cli.New("notation-example", plugin)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "failed to create executable: %v", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to create executable: %v\n", err)
 		os.Exit(3)
 	}
 	pluginCli.Execute(ctx, os.Args)

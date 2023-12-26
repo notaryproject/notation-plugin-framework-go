@@ -13,7 +13,7 @@ func main() {
 	// Initialize plugin
 	plugin, err := NewExamplePlugin()
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "failed to initialize plugin: %v", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to initialize plugin: %v\n", err)
 		os.Exit(2)
 	}
 

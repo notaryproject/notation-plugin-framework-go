@@ -14,7 +14,7 @@ import (
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
-var cli = New("mockCli", &mockPlugin{})
+var cli, _ = New(&mockPlugin{})
 
 func TestMarshalResponse(t *testing.T) {
 	res := plugin.GenerateEnvelopeResponse{

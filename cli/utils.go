@@ -32,7 +32,7 @@ func getValidArgs(md *plugin.GetMetadataResponse) []string {
 	if slices.Contains(md.Capabilities, plugin.CapabilityTrustedIdentityVerifier) || slices.Contains(md.Capabilities, plugin.CapabilityRevocationCheckVerifier) {
 		opts = append(opts, plugin.CommandVerifySignature)
 	}
-	// convert &value (type *[]Command) to *[]string via unsafe.Pointer, then deref
+	// convert &opts (type *[]Command) to *[]string via unsafe.Pointer, then deref
 	stringOpts := *(*[]string)(unsafe.Pointer(&opts))
 	sort.Strings(stringOpts)
 	return stringOpts

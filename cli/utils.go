@@ -3,9 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strings"
-	"unsafe"
 
 	"github.com/notaryproject/notation-plugin-framework-go/internal/slices"
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
@@ -17,25 +15,23 @@ func getValidArgsString(md *plugin.GetMetadataResponse) string {
 
 // getValidArgs returns list of valid arguments depending upon the plugin capabilities
 func getValidArgs(md *plugin.GetMetadataResponse) []string {
-	opts := []plugin.Command{
-		plugin.CommandGetMetadata, plugin.Version,
+	args := []string{
+		string(plugin.CommandGetMetadata), string(plugin.Version),
 	}
 
 	if slices.Contains(md.Capabilities, plugin.CapabilitySignatureGenerator) {
-		opts = append(opts, plugin.CommandGenerateSignature, plugin.CommandDescribeKey)
+		args = append(args, string(plugin.CommandGenerateSignature), string(plugin.CommandDescribeKey))
 	}
 
 	if slices.Contains(md.Capabilities, plugin.CapabilityEnvelopeGenerator) {
-		opts = append(opts, plugin.CommandGenerateEnvelope)
+		args = append(args, string(plugin.CommandGenerateEnvelope))
 	}
 
 	if slices.Contains(md.Capabilities, plugin.CapabilityTrustedIdentityVerifier) || slices.Contains(md.Capabilities, plugin.CapabilityRevocationCheckVerifier) {
-		opts = append(opts, plugin.CommandVerifySignature)
+		args = append(args, string(plugin.CommandVerifySignature))
 	}
-	// convert &opts (type *[]Command) to *[]string via unsafe.Pointer, then deref
-	stringOpts := *(*[]string)(unsafe.Pointer(&opts))
-	sort.Strings(stringOpts)
-	return stringOpts
+
+	return args
 }
 
 // deliverError print to standard error and then return nonzero exit code

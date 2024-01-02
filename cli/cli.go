@@ -22,7 +22,6 @@ import (
 
 // CLI struct is used to create an executable for plugin.
 type CLI struct {
-	name   string
 	pl     plugin.Plugin
 	logger log.Logger
 }

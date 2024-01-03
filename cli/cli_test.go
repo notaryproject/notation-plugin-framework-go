@@ -14,7 +14,7 @@ import (
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
-var cli = New("mockCli", &mockPlugin{})
+var cli, _ = New(&mockPlugin{})
 
 func TestMarshalResponse(t *testing.T) {
 	res := plugin.GenerateEnvelopeResponse{
@@ -36,13 +36,13 @@ func TestMarshalResponse(t *testing.T) {
 func TestMarshalResponseError(t *testing.T) {
 
 	_, err := cli.marshalResponse(nil, fmt.Errorf("expected error thrown"))
-	assertErr(t, err, plugin.CodeGeneric)
+	assertErr(t, err, plugin.ErrorCodeGeneric)
 
 	_, err = cli.marshalResponse(nil, plugin.NewValidationError("expected validation error thrown"))
-	assertErr(t, err, plugin.CodeValidation)
+	assertErr(t, err, plugin.ErrorCodeValidation)
 
 	_, err = cli.marshalResponse(make(chan int), nil)
-	assertErr(t, err, plugin.CodeGeneric)
+	assertErr(t, err, plugin.ErrorCodeGeneric)
 }
 
 func TestUnmarshalRequest(t *testing.T) {
@@ -129,7 +129,7 @@ func setupReader(content string) func() {
 	}
 }
 
-func assertErr(t *testing.T, err error, code plugin.Code) {
+func assertErr(t *testing.T, err error, code plugin.ErrorCode) {
 	if plgErr, ok := err.(*plugin.Error); ok {
 		if reflect.DeepEqual(code, plgErr.ErrCode) {
 			return

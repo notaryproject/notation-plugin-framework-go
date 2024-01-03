@@ -2,6 +2,12 @@
 // and notation external plugin.
 package plugin
 
+// BinaryPrefix is the prefix required on all plugin binary names.
+const BinaryPrefix = "notation-"
+
+// ContractVersion is the <major>.<minor> version of the plugin contract.
+const ContractVersion = "1.0"
+
 // Capability is a feature available in the plugin contract.
 type Capability string
 
@@ -25,6 +31,11 @@ const (
 
 // Command is a CLI command available in the plugin contract.
 type Command string
+
+// Request defines a plugin request, which is always associated to a command.
+type Request interface {
+	Command() Command
+}
 
 const (
 	// CommandGetMetadata is the name of the plugin command

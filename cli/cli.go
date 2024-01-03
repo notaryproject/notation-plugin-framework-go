@@ -10,6 +10,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -19,24 +20,27 @@ import (
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
+// CLI struct is used to create an executable for plugin.
 type CLI struct {
-	name   string
 	pl     plugin.Plugin
 	logger log.Logger
 }
 
 // New creates a new CLI using given plugin
-func New(executableName string, pl plugin.Plugin) *CLI {
-	return NewWithLogger(executableName, pl, &discardLogger{})
+func New(pl plugin.Plugin) (*CLI, error) {
+	return NewWithLogger(pl, &discardLogger{})
 }
 
 // NewWithLogger creates a new CLI using given plugin and logger
-func NewWithLogger(executableName string, pl plugin.Plugin, l log.Logger) *CLI {
+func NewWithLogger(pl plugin.Plugin, l log.Logger) (*CLI, error) {
+	if pl == nil {
+		return nil, errors.New("plugin cannot be nil")
+	}
+
 	return &CLI{
-		name:   executableName,
 		pl:     pl,
 		logger: l,
-	}
+	}, nil
 }
 
 // Execute is main controller that reads/validates commands, parses input, executes relevant plugin functions
@@ -113,7 +117,7 @@ func (c *CLI) printVersion(ctx context.Context) {
 func (c *CLI) validateArgs(ctx context.Context, args []string) {
 	md := c.getMetadata(ctx, c.pl)
 	if !(len(args) == 2 && slices.Contains(getValidArgs(md), args[1])) {
-		deliverError(fmt.Sprintf("Invalid command, valid choices are: %s %s", c.name, getValidArgsString(md)))
+		deliverError(fmt.Sprintf("Invalid command, valid commands are: %s", getValidArgsString(md)))
 	}
 }
 
@@ -154,64 +158,4 @@ func (c *CLI) marshalResponse(response any, err error) (string, *plugin.Error) {
 
 	c.logger.Debugf("%s response: %s", reflect.TypeOf(response), jsonResponse)
 	return string(jsonResponse), nil
-}
-
-// deferStdout is used to make sure that nothing get emitted to stdout and stderr until intentionally rescued.
-// This is required to make sure that the plugin or its dependency doesn't interfere with notation <-> plugin communication
-func deferStdout() func() {
-	// Ignoring error because we don't want plugin to fail if `os.DevNull` is misconfigured.
-	null, _ := os.Open(os.DevNull)
-	sout := os.Stdout
-	serr := os.Stderr
-	os.Stdout = null
-	os.Stderr = null
-
-	return func() {
-		err := null.Close()
-		if err != nil {
-			return
-		}
-		os.Stdout = sout
-		os.Stderr = serr
-	}
-}
-
-// discardLogger implements Logger but logs nothing. It is used when user
-// disenabled logging option in notation, i.e. loggerKey is not in the context.
-type discardLogger struct{}
-
-func (dl *discardLogger) Debug(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Debugf(_ string, _ ...interface{}) {
-}
-
-func (dl *discardLogger) Debugln(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Info(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Infof(_ string, _ ...interface{}) {
-}
-
-func (dl *discardLogger) Infoln(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Warn(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Warnf(_ string, _ ...interface{}) {
-}
-
-func (dl *discardLogger) Warnln(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Error(_ ...interface{}) {
-}
-
-func (dl *discardLogger) Errorf(_ string, _ ...interface{}) {
-}
-
-func (dl *discardLogger) Errorln(_ ...interface{}) {
 }

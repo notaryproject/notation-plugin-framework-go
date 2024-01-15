@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/notaryproject/notation-plugin-framework-go/internal/slices"
@@ -31,6 +32,7 @@ func getValidArgs(md *plugin.GetMetadataResponse) []string {
 		args = append(args, string(plugin.CommandVerifySignature))
 	}
 
+	sort.Strings(args)
 	return args
 }
 

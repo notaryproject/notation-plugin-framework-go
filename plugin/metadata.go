@@ -19,3 +19,18 @@ type GetMetadataResponse struct {
 	SupportedContractVersions []string     `json:"supportedContractVersions,omitempty"`
 	Capabilities              []Capability `json:"capabilities"`
 }
+
+// HasCapability return true if the metadata states that the
+// capability is supported.
+// Returns true if capability is empty.
+func (resp *GetMetadataResponse) HasCapability(capability Capability) bool {
+	if capability == "" {
+		return true
+	}
+	for _, c := range resp.Capabilities {
+		if c == capability {
+			return true
+		}
+	}
+	return false
+}

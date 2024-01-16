@@ -25,4 +25,4 @@ permissions:
 
 jobs:
   check-license:
-    uses: ./.github/workflows/reusable-license-checker.yml
+    uses: notaryproject/notation-core-go/.github/workflows/reusable-license-checker.yml@main

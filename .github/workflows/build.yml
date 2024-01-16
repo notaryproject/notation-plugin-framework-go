@@ -21,4 +21,4 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/reusable-build.yml
+    uses: notaryproject/notation-core-go/.github/workflows/reusable-build.yml@main

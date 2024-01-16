@@ -19,8 +19,8 @@ on:
   pull_request:
     branches: main
   schedule:
-    - cron: '38 15 * * 1'
+    - cron: '29 2 * * 5'
 
 jobs:
   analyze:
-    uses: ./.github/workflows/reusable-codeql.yml
+    uses: notaryproject/notation-core-go/.github/workflows/reusable-codeql.yml@main

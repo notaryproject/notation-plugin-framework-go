@@ -23,35 +23,60 @@ import (
 
 // Mock plugin used only for testing.
 type mockPlugin struct {
-	fail bool
+	fail         bool
+	envGenerator bool
 }
 
 func NewPlugin(failPlugin bool) *mockPlugin {
-	return &mockPlugin{fail: failPlugin}
+	return &mockPlugin{
+		fail:         failPlugin,
+		envGenerator: true,
+	}
+}
+
+func NewSigGeneratorPlugin(failPlugin bool) *mockPlugin {
+	return &mockPlugin{
+		fail:         failPlugin,
+		envGenerator: false,
+	}
 }
 
 func (p *mockPlugin) DescribeKey(ctx context.Context, req *plugin.DescribeKeyRequest) (*plugin.DescribeKeyResponse, error) {
-	return nil, plugin.NewUnsupportedError("DescribeKey operation is not implemented by example plugin")
+	if p.fail || p.envGenerator {
+		return nil, fmt.Errorf("DescribeKey() expected error")
+	}
+	return &plugin.DescribeKeyResponse{
+		KeyID:   "someKeyId",
+		KeySpec: plugin.KeySpecRSA2048,
+	}, nil
 }
 
 func (p *mockPlugin) GenerateSignature(ctx context.Context, req *plugin.GenerateSignatureRequest) (*plugin.GenerateSignatureResponse, error) {
-	return nil, plugin.NewUnsupportedError("GenerateSignature operation is not implemented by example plugin")
+	if p.fail || p.envGenerator {
+		return nil, fmt.Errorf("GenerateSignature() expected error")
+	}
+	return &plugin.GenerateSignatureResponse{
+		KeyID:            "someKeyId",
+		Signature:        []byte("abcd"),
+		SigningAlgorithm: plugin.SignatureAlgorithmRSASSA_PSS_SHA256,
+		CertificateChain: [][]byte{[]byte("abcd"), []byte("wxyz")},
+	}, nil
 }
 
 func (p *mockPlugin) GenerateEnvelope(ctx context.Context, req *plugin.GenerateEnvelopeRequest) (*plugin.GenerateEnvelopeResponse, error) {
-	if p.fail {
-		return nil, fmt.Errorf("expected error")
+	if p.fail || !p.envGenerator {
+		return nil, fmt.Errorf("GenerateEnvelope() expected error")
 	}
 	return &plugin.GenerateEnvelopeResponse{
 		SignatureEnvelope:     []byte(""),
-		SignatureEnvelopeType: "application/jose+json",
+		SignatureEnvelopeType: req.SignatureEnvelopeType,
 		Annotations:           map[string]string{"manifestAnntnKey1": "value1"},
 	}, nil
 }
 
 func (p *mockPlugin) VerifySignature(ctx context.Context, req *plugin.VerifySignatureRequest) (*plugin.VerifySignatureResponse, error) {
 	if p.fail {
-		return nil, fmt.Errorf("expected error")
+		return nil, fmt.Errorf("VerifySignature() expected error")
 	}
 	upAttrs := req.Signature.UnprocessedAttributes
 	pAttrs := make([]interface{}, len(upAttrs))
@@ -76,16 +101,24 @@ func (p *mockPlugin) VerifySignature(ctx context.Context, req *plugin.VerifySign
 
 func (p *mockPlugin) GetMetadata(ctx context.Context, req *plugin.GetMetadataRequest) (*plugin.GetMetadataResponse, error) {
 	if p.fail {
-		return nil, fmt.Errorf("expected error")
+		return nil, fmt.Errorf("GetMetadata() expected error")
 	}
+
+	cap := []plugin.Capability{
+		plugin.CapabilityTrustedIdentityVerifier,
+		plugin.CapabilityRevocationCheckVerifier,
+	}
+	if p.envGenerator {
+		cap = append(cap, plugin.CapabilityEnvelopeGenerator)
+	} else {
+		cap = append(cap, plugin.CapabilitySignatureGenerator)
+	}
+
 	return &plugin.GetMetadataResponse{
-		Name:        "Example Plugin",
-		Description: "This is an description of example plugin. 🍺",
-		URL:         "https://example.com/notation/plugin",
-		Version:     "1.0.0",
-		Capabilities: []plugin.Capability{
-			plugin.CapabilityEnvelopeGenerator,
-			plugin.CapabilityTrustedIdentityVerifier,
-			plugin.CapabilityRevocationCheckVerifier},
+		Name:         "Example Plugin",
+		Description:  "This is an description of example plugin. 🍺",
+		URL:          "https://example.com/notation/plugin",
+		Version:      "1.0.0",
+		Capabilities: cap,
 	}, nil
 }

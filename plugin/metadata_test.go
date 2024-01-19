@@ -53,3 +53,10 @@ func TestGetMetadataRequest_Validate(t *testing.T) {
 		}
 	}
 }
+
+func TestGetMetadataRequest_Command(t *testing.T) {
+	req := GetMetadataRequest{}
+	if cmd := req.Command(); cmd != CommandGetMetadata {
+		t.Errorf("DescribeKeyRequest#Command, expected %s but returned %s", CommandGetMetadata, cmd)
+	}
+}

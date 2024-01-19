@@ -57,6 +57,13 @@ func TestDescribeKeyRequest_Validate_Error(t *testing.T) {
 	}
 }
 
+func TestDescribeKeyRequest_Command(t *testing.T) {
+	req := getDescribeKeyRequest(ContractVersion, "someKeyId")
+	if cmd := req.Command(); cmd != CommandDescribeKey {
+		t.Errorf("DescribeKeyRequest#Command, expected %s but returned %s", CommandDescribeKey, cmd)
+	}
+}
+
 func getDescribeKeyRequest(cv, kid string) DescribeKeyRequest {
 	return DescribeKeyRequest{
 		ContractVersion: cv,

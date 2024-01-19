@@ -95,15 +95,16 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 			resp, err = c.pl.DescribeKey(ctx, &request)
 		}
 	case plugin.CommandGenerateSignature:
-		var request plugin.VerifySignatureRequest
+		var request plugin.GenerateSignatureRequest
 		err = c.unmarshalRequest(&request)
 		if err == nil {
-			c.logger.Debugf("executing %s plugin's VerifySignature function", reflect.TypeOf(c.pl))
-			resp, err = c.pl.VerifySignature(ctx, &request)
+			c.logger.Debugf("executing %s plugin's GenerateSignature function", reflect.TypeOf(c.pl))
+			resp, err = c.pl.GenerateSignature(ctx, &request)
 		}
 	case plugin.Version:
 		rescueStdOut()
 		c.printVersion(ctx)
+		return
 	default:
 		// should never happen
 		rescueStdOut()
@@ -115,7 +116,7 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 	if pluginErr != nil {
 		deliverError(pluginErr.Error())
 	}
-	fmt.Println(op)
+	fmt.Print(op)
 }
 
 // printVersion prints version of executable
@@ -123,7 +124,6 @@ func (c *CLI) printVersion(ctx context.Context) {
 	md := c.getMetadata(ctx, c.pl)
 
 	fmt.Printf("%s - %s\nVersion: %s \n", md.Name, md.Description, md.Version)
-	os.Exit(0)
 }
 
 // validateArgs validate commands/arguments passed to executable.

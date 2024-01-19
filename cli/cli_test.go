@@ -16,6 +16,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -27,7 +28,15 @@ import (
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
-var cli, _ = New(&mockPlugin{})
+var cli, _ = New(mock.NewPlugin(false))
+var errorCli, _ = New(mock.NewPlugin(true))
+
+func TestNewWithLogger(t *testing.T) {
+	_, err := NewWithLogger(nil, &discardLogger{})
+	if err == nil {
+		t.Fatalf("NewWithLogger() expected error but not found")
+	}
+}
 
 func TestMarshalResponse(t *testing.T) {
 	res := plugin.GenerateEnvelopeResponse{
@@ -94,19 +103,10 @@ func TestUnmarshalRequestError(t *testing.T) {
 	}
 }
 
-func TestGetMetadata(t *testing.T) {
-	pl := mock.NewPlugin(false)
-	ctx := context.Background()
-
-	cli.getMetadata(ctx, pl)
-}
-
 func TestGetMetadataError(t *testing.T) {
 	if os.Getenv("TEST_OS_EXIT") == "1" {
-		pl := mock.NewPlugin(true)
 		ctx := context.Background()
-
-		cli.getMetadata(ctx, pl)
+		errorCli.Execute(ctx, []string{string(plugin.CommandGetMetadata)})
 		return
 	}
 	cmd := exec.Command(os.Args[0], "-test.run=TestGetMetadataError")
@@ -116,6 +116,52 @@ func TestGetMetadataError(t *testing.T) {
 		return
 	}
 	t.Fatalf("process ran with err %v, want exit status 1", err)
+}
+
+func TestExecuteSuccess(t *testing.T) {
+	sigGenCli, _ := New(mock.NewSigGeneratorPlugin(false))
+	tests := map[string]struct {
+		c  *CLI
+		op string
+	}{
+		string(plugin.CommandGetMetadata): {
+			c:  cli,
+			op: "{\"name\":\"Example Plugin\",\"description\":\"This is an description of example plugin. 🍺\",\"version\":\"1.0.0\",\"url\":\"https://example.com/notation/plugin\",\"capabilities\":[\"SIGNATURE_VERIFIER.TRUSTED_IDENTITY\",\"SIGNATURE_VERIFIER.REVOCATION_CHECK\",\"SIGNATURE_GENERATOR.ENVELOPE\"]}",
+		},
+		string(plugin.Version): {
+			c:  cli,
+			op: "Example Plugin - This is an description of example plugin. 🍺\nVersion: 1.0.0 \n",
+		},
+		string(plugin.CommandGenerateEnvelope): {
+			c:  cli,
+			op: "{\"signatureEnvelope\":\"\",\"signatureEnvelopeType\":\"\",\"annotations\":{\"manifestAnntnKey1\":\"value1\"}}",
+		},
+		string(plugin.CommandVerifySignature): {
+			c:  cli,
+			op: "{\"verificationResults\":{\"SIGNATURE_VERIFIER.REVOCATION_CHECK\":{\"success\":true,\"reason\":\"Not revoked\"},\"SIGNATURE_VERIFIER.TRUSTED_IDENTITY\":{\"success\":true,\"reason\":\"Valid trusted Identity\"}},\"processedAttributes\":[]}",
+		},
+		string(plugin.CommandGenerateSignature): {
+			c:  sigGenCli,
+			op: "{\"keyId\":\"someKeyId\",\"signature\":\"YWJjZA==\",\"signingAlgorithm\":\"RSASSA-PSS-SHA-256\",\"certificateChain\":[\"YWJjZA==\",\"d3h5eg==\"]}",
+		},
+		string(plugin.CommandDescribeKey): {
+			c:  sigGenCli,
+			op: "{\"keyId\":\"someKeyId\",\"keySpec\":\"RSA-2048\"}",
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			closer := setupReader("{}")
+			defer closer()
+			op := captureStdOut(func() {
+				test.c.Execute(context.Background(), []string{"notation", name})
+			})
+			fmt.Println(op)
+			if op != test.op {
+				t.Errorf("Execute() with '%s' args, expected '%s' but got '%s'", name, test.op, op)
+			}
+		})
+	}
 }
 
 func setupReader(content string) func() {
@@ -142,6 +188,17 @@ func setupReader(content string) func() {
 	}
 }
 
+func captureStdOut(f func()) string {
+	orig := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	f()
+	os.Stdout = orig
+	w.Close()
+	out, _ := io.ReadAll(r)
+	return string(out)
+}
+
 func assertErr(t *testing.T, err error, code plugin.ErrorCode) {
 	if plgErr, ok := err.(*plugin.Error); ok {
 		if reflect.DeepEqual(code, plgErr.ErrCode) {
@@ -151,28 +208,4 @@ func assertErr(t *testing.T, err error, code plugin.ErrorCode) {
 	}
 
 	t.Errorf("expected error of type PluginError but found %s", reflect.TypeOf(err))
-}
-
-type mockPlugin struct {
-}
-
-func (p *mockPlugin) DescribeKey(_ context.Context, _ *plugin.DescribeKeyRequest) (*plugin.DescribeKeyResponse, error) {
-	return nil, plugin.NewUnsupportedError("DescribeKey operation is not implemented by example plugin")
-}
-
-func (p *mockPlugin) GenerateSignature(_ context.Context, _ *plugin.GenerateSignatureRequest) (*plugin.GenerateSignatureResponse, error) {
-	return nil, plugin.NewUnsupportedError("GenerateSignature operation is not implemented by example plugin")
-}
-
-func (p *mockPlugin) GenerateEnvelope(_ context.Context, _ *plugin.GenerateEnvelopeRequest) (*plugin.GenerateEnvelopeResponse, error) {
-	return nil, plugin.NewUnsupportedError("GenerateEnvelope operation is not implemented by example plugin")
-}
-
-func (p *mockPlugin) VerifySignature(_ context.Context, _ *plugin.VerifySignatureRequest) (*plugin.VerifySignatureResponse, error) {
-	return nil, plugin.NewUnsupportedError("VerifySignature operation is not implemented by example plugin")
-
-}
-
-func (p *mockPlugin) GetMetadata(_ context.Context, _ *plugin.GetMetadataRequest) (*plugin.GetMetadataResponse, error) {
-	return nil, plugin.NewUnsupportedError("GetMetadata operation is not implemented by mock plugin")
 }

@@ -55,6 +55,9 @@ func TestVerifySignatureRequest_Validate_Error(t *testing.T) {
 	reqWithoutSignature := getVerifySignatureRequest("1.0", "someCT", "someSigningScheme", mockCertChain, []Capability{CapabilitySignatureGenerator})
 	reqWithoutSignature.Signature = Signature{}
 
+	reqWithoutCriticalAttr := getVerifySignatureRequest("1.0", "someCT", "someSigningScheme", mockCertChain, []Capability{CapabilitySignatureGenerator})
+	reqWithoutCriticalAttr.Signature.CriticalAttributes = CriticalAttributes{}
+
 	testCases := []struct {
 		name string
 		req  VerifySignatureRequest
@@ -67,6 +70,7 @@ func TestVerifySignatureRequest_Validate_Error(t *testing.T) {
 		{name: "signature's trustPolicy", req: getVerifySignatureRequest(ContractVersion, "someCT", "someSigningScheme", mockCertChain, nil)},
 		{name: "signature's trustPolicy's signatureVerification", req: getVerifySignatureRequest(ContractVersion, "someCT", "someSigningScheme", mockCertChain, []Capability{})},
 		{name: "signature", req: reqWithoutSignature},
+		{name: "signature's criticalAttributes", req: reqWithoutCriticalAttr},
 	}
 
 	for _, testcase := range testCases {
@@ -80,6 +84,13 @@ func TestVerifySignatureRequest_Validate_Error(t *testing.T) {
 				t.Error("VerifySignatureRequest#Validate didn't returned error")
 			}
 		})
+	}
+}
+
+func TestVerifySignatureRequest_Command(t *testing.T) {
+	req := getVerifySignatureRequest(ContractVersion, "someCT", "someSigningScheme", mockCertChain, []Capability{CapabilitySignatureGenerator})
+	if cmd := req.Command(); cmd != CommandVerifySignature {
+		t.Errorf("DescribeKeyRequest#Command, expected %s but returned %s", CommandVerifySignature, cmd)
 	}
 }
 

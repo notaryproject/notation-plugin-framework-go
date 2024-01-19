@@ -66,6 +66,13 @@ func TestGenerateSignatureRequest_Validate_Error(t *testing.T) {
 	}
 }
 
+func TestGenerateSignatureRequest_Command(t *testing.T) {
+	req := getGenerateSignatureRequest(ContractVersion, "someKeyId", string(KeySpecEC384), string(HashAlgorithmSHA384), []byte("zop"))
+	if cmd := req.Command(); cmd != CommandGenerateSignature {
+		t.Errorf("DescribeKeyRequest#Command, expected %s but returned %s", CommandGenerateSignature, cmd)
+	}
+}
+
 func TestGenerateEnvelopeRequest_Validate(t *testing.T) {
 	reqs := []GenerateEnvelopeRequest{
 		getGenerateEnvelopeRequest(ContractVersion, "someKeyId", "someSET", "somePT", []byte("zop")),
@@ -108,10 +115,16 @@ func TestGenerateEnvelopeRequest_Validate_Error(t *testing.T) {
 					t.Errorf("expected error message '%s' but got '%s'", expMsg, err.Error())
 				}
 			} else {
-				fmt.Println(testcase.req)
 				t.Error("GenerateEnvelopeRequest#Validate didn't returned error")
 			}
 		})
+	}
+}
+
+func TestGenerateEnvelopeRequest_Command(t *testing.T) {
+	req := getGenerateEnvelopeRequest(ContractVersion, "someKeyId", string(KeySpecEC384), string(HashAlgorithmSHA384), []byte("zop"))
+	if cmd := req.Command(); cmd != CommandGenerateEnvelope {
+		t.Errorf("DescribeKeyRequest#Command, expected %s but returned %s", CommandGenerateEnvelope, cmd)
 	}
 }
 

@@ -121,36 +121,43 @@ func TestExecuteSuccess(t *testing.T) {
 	sigGenCli, _ := New(mock.NewSigGeneratorPlugin(false))
 	tests := map[string]struct {
 		c  *CLI
+		in string
 		op string
 	}{
 		string(plugin.CommandGetMetadata): {
 			c:  cli,
+			in: "{}",
 			op: "{\"name\":\"Example Plugin\",\"description\":\"This is an description of example plugin. 🍺\",\"version\":\"1.0.0\",\"url\":\"https://example.com/notation/plugin\",\"capabilities\":[\"SIGNATURE_VERIFIER.TRUSTED_IDENTITY\",\"SIGNATURE_VERIFIER.REVOCATION_CHECK\",\"SIGNATURE_GENERATOR.ENVELOPE\"]}",
 		},
 		string(plugin.Version): {
 			c:  cli,
-			op: "Example Plugin - This is an description of example plugin. 🍺\nVersion: 1.0.0 \n",
+			in: "",
+			op: "Example Plugin - This is an description of example plugin. 🍺\nVersion: 1.0.0\n",
 		},
 		string(plugin.CommandGenerateEnvelope): {
 			c:  cli,
-			op: "{\"signatureEnvelope\":\"\",\"signatureEnvelopeType\":\"\",\"annotations\":{\"manifestAnntnKey1\":\"value1\"}}",
+			in: "{\"contractVersion\":\"1.0\",\"keyId\":\"someKeyId\",\"payloadType\":\"somePT\",\"signatureEnvelopeType\":\"someSET\",\"payload\":\"em9w\"}",
+			op: "{\"signatureEnvelope\":\"\",\"signatureEnvelopeType\":\"someSET\",\"annotations\":{\"manifestAnntnKey1\":\"value1\"}}",
 		},
 		string(plugin.CommandVerifySignature): {
 			c:  cli,
+			in: "{\"contractVersion\":\"1.0\",\"signature\":{\"criticalAttributes\":{\"contentType\":\"someCT\",\"signingScheme\":\"someSigningScheme\"},\"unprocessedAttributes\":null,\"certificateChain\":[\"emFw\",\"em9w\"]},\"trustPolicy\":{\"trustedIdentities\":null,\"signatureVerification\":[\"SIGNATURE_GENERATOR.RAW\"]}}",
 			op: "{\"verificationResults\":{\"SIGNATURE_VERIFIER.REVOCATION_CHECK\":{\"success\":true,\"reason\":\"Not revoked\"},\"SIGNATURE_VERIFIER.TRUSTED_IDENTITY\":{\"success\":true,\"reason\":\"Valid trusted Identity\"}},\"processedAttributes\":[]}",
 		},
 		string(plugin.CommandGenerateSignature): {
 			c:  sigGenCli,
+			in: "{\"contractVersion\":\"1.0\",\"keyId\":\"someKeyId\",\"keySpec\":\"EC-384\",\"hashAlgorithm\":\"SHA-384\",\"payload\":\"em9w\"}",
 			op: "{\"keyId\":\"someKeyId\",\"signature\":\"YWJjZA==\",\"signingAlgorithm\":\"RSASSA-PSS-SHA-256\",\"certificateChain\":[\"YWJjZA==\",\"d3h5eg==\"]}",
 		},
 		string(plugin.CommandDescribeKey): {
 			c:  sigGenCli,
+			in: "{\"contractVersion\":\"1.0\",\"keyId\":\"someKeyId\"}",
 			op: "{\"keyId\":\"someKeyId\",\"keySpec\":\"RSA-2048\"}",
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			closer := setupReader("{}")
+			closer := setupReader(test.in)
 			defer closer()
 			op := captureStdOut(func() {
 				test.c.Execute(context.Background(), []string{"notation", name})

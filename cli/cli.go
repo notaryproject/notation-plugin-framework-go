@@ -122,7 +122,7 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 func (c *CLI) printVersion(ctx context.Context) {
 	md := c.getMetadata(ctx, c.pl)
 
-	fmt.Printf("%s - %s\nVersion: %s \n", md.Name, md.Description, md.Version)
+	fmt.Printf("%s - %s\nVersion: %s\n", md.Name, md.Description, md.Version)
 }
 
 // validateArgs validate commands/arguments passed to executable.
@@ -142,7 +142,10 @@ func (c *CLI) unmarshalRequest(request plugin.Request) error {
 
 	if err := request.Validate(); err != nil {
 		c.logger.Errorf("%s validation error :%v", reflect.TypeOf(request), err)
-		return plugin.NewValidationError(plugin.ErrorMsgMalformedInput)
+		if e, ok := err.(*plugin.Error); ok {
+			return plugin.NewValidationErrorf("%s: %s", plugin.ErrorMsgMalformedInput, e.Message)
+		}
+		return plugin.NewValidationErrorf("%s", plugin.ErrorMsgMalformedInput)
 	}
 
 	return nil

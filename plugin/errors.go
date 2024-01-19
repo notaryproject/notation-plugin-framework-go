@@ -53,8 +53,8 @@ func NewGenericError(msg string) *Error {
 	return NewError(ErrorCodeGeneric, msg)
 }
 
-func NewGenericErrorf(format string, msg string) *Error {
-	return NewError(ErrorCodeGeneric, fmt.Sprintf(format, msg))
+func NewGenericErrorf(format string, msg ...any) *Error {
+	return NewError(ErrorCodeGeneric, fmt.Sprintf(format, msg...))
 }
 
 func NewUnsupportedError(msg string) *Error {
@@ -65,8 +65,8 @@ func NewValidationError(msg string) *Error {
 	return NewError(ErrorCodeValidation, msg)
 }
 
-func NewValidationErrorf(format string, msg string) *Error {
-	return NewError(ErrorCodeValidation, fmt.Sprintf(format, msg))
+func NewValidationErrorf(format string, msg ...any) *Error {
+	return NewError(ErrorCodeValidation, fmt.Sprintf(format, msg...))
 }
 
 func NewUnsupportedContractVersionError(version string) *Error {

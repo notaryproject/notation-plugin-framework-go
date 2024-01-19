@@ -14,6 +14,7 @@
 package plugin
 
 import (
+	"reflect"
 	"time"
 )
 
@@ -28,6 +29,43 @@ type VerifySignatureRequest struct {
 
 func (VerifySignatureRequest) Command() Command {
 	return CommandVerifySignature
+}
+
+// Validate validates VerifySignatureRequest struct
+func (r VerifySignatureRequest) Validate() error {
+	if r.ContractVersion == "" {
+		return NewValidationError("contractVersion cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.Signature, Signature{}) {
+		return NewValidationError("signature cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.Signature.CriticalAttributes, CriticalAttributes{}) {
+		return NewValidationError("signature's criticalAttributes cannot be empty")
+	}
+
+	if r.Signature.CriticalAttributes.ContentType == "" {
+		return NewValidationError("signature's criticalAttributes's contentType cannot be empty")
+	}
+
+	if r.Signature.CriticalAttributes.SigningScheme == "" {
+		return NewValidationError("signature's criticalAttributes's signingScheme cannot be empty")
+	}
+
+	if len(r.Signature.CertificateChain) == 0 {
+		return NewValidationError("signature's criticalAttributes's certificateChain cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.TrustPolicy, TrustPolicy{}) {
+		return NewValidationError("signature's trustPolicy cannot be empty")
+	}
+
+	if len(r.TrustPolicy.SignatureVerification) == 0 {
+		return NewValidationError("signature's trustPolicy's signatureVerification cannot be empty")
+	}
+
+	return nil
 }
 
 // Signature represents a signature pulled from the envelope

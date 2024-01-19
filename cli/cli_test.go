@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/notaryproject/notation-plugin-framework-go/cli/internal/mock"
+	"github.com/notaryproject/notation-plugin-framework-go/internal/mock"
 	"github.com/notaryproject/notation-plugin-framework-go/plugin"
 )
 
@@ -34,7 +34,7 @@ var errorCli, _ = New(mock.NewPlugin(true))
 func TestNewWithLogger(t *testing.T) {
 	_, err := NewWithLogger(nil, &discardLogger{})
 	if err == nil {
-		t.Fatalf("NewWithLogger() expected error but not found")
+		t.Errorf("NewWithLogger() expected error but not found")
 	}
 }
 
@@ -56,7 +56,6 @@ func TestMarshalResponse(t *testing.T) {
 }
 
 func TestMarshalResponseError(t *testing.T) {
-
 	_, err := cli.marshalResponse(nil, fmt.Errorf("expected error thrown"))
 	assertErr(t, err, plugin.ErrorCodeGeneric)
 
@@ -89,17 +88,17 @@ func TestUnmarshalRequestError(t *testing.T) {
 	var request plugin.DescribeKeyRequest
 	err := cli.unmarshalRequest(&request)
 	if err == nil {
-		t.Fatalf("unmarshalRequest() expected error but not found")
+		t.Errorf("unmarshalRequest() expected error but not found")
 	}
 
 	plgErr, ok := err.(*plugin.Error)
 	if !ok {
-		t.Fatalf("unmarshalRequest() expected error of type plugin.Error but found %s", reflect.TypeOf(err))
+		t.Errorf("unmarshalRequest() expected error of type plugin.Error but found %s", reflect.TypeOf(err))
 	}
 
 	expectedErrStr := "{\"errorCode\":\"VALIDATION_ERROR\",\"errorMessage\":\"Input is not a valid JSON\"}"
 	if plgErr.Error() != expectedErrStr {
-		t.Fatalf("unmarshalRequest() expected error string to be %s but found %s", expectedErrStr, plgErr.Error())
+		t.Errorf("unmarshalRequest() expected error string to be %s but found %s", expectedErrStr, plgErr.Error())
 	}
 }
 
@@ -115,7 +114,7 @@ func TestGetMetadataError(t *testing.T) {
 	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
 		return
 	}
-	t.Fatalf("process ran with err %v, want exit status 1", err)
+	t.Errorf("process ran with err %v, want exit status 1", err)
 }
 
 func TestExecuteSuccess(t *testing.T) {
@@ -156,7 +155,6 @@ func TestExecuteSuccess(t *testing.T) {
 			op := captureStdOut(func() {
 				test.c.Execute(context.Background(), []string{"notation", name})
 			})
-			fmt.Println(op)
 			if op != test.op {
 				t.Errorf("Execute() with '%s' args, expected '%s' but got '%s'", name, test.op, op)
 			}
@@ -206,6 +204,5 @@ func assertErr(t *testing.T, err error, code plugin.ErrorCode) {
 		}
 		t.Errorf("mismatch in error code: \n expected: %s\n actual : %s", code, plgErr.ErrCode)
 	}
-
 	t.Errorf("expected error of type PluginError but found %s", reflect.TypeOf(err))
 }

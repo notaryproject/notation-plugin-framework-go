@@ -91,8 +91,8 @@ func (p *ExamplePlugin) VerifySignature(ctx context.Context, req *plugin.VerifyS
 
 func (p *ExamplePlugin) GetMetadata(ctx context.Context, req *plugin.GetMetadataRequest) (*plugin.GetMetadataResponse, error) {
 	return &plugin.GetMetadataResponse{
-		Name:        "Example Plugin",
-		Description: "This is an description of example plugin. 🍺",
+		Name:        "com.example.plugin",
+		Description: "This is an description of example plugin",
 		URL:         "https://example.com/notation/plugin",
 		Version:     "1.0.0",
 		Capabilities: []plugin.Capability{

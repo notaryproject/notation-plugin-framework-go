@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestGetMetadataResponse_HasCapability(t *testing.T) {
+func TestGetMetadataResponseHasCapability(t *testing.T) {
 	type args struct {
 		capability Capability
 	}
@@ -38,5 +38,18 @@ func TestGetMetadataResponse_HasCapability(t *testing.T) {
 				t.Errorf("GetMetadataResponse.HasCapability() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestGetMetadataRequest_Validate(t *testing.T) {
+	reqs := []GetMetadataRequest{
+		{},
+		{PluginConfig: map[string]string{"key1": "value1"}},
+	}
+
+	for _, req := range reqs {
+		if err := req.Validate(); err != nil {
+			t.Errorf("GetMetadataRequest#Validate failed with error: %+v", err)
+		}
 	}
 }

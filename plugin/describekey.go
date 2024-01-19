@@ -24,6 +24,19 @@ func (DescribeKeyRequest) Command() Command {
 	return CommandDescribeKey
 }
 
+// Validate validates DescribeKeyRequest struct
+func (r DescribeKeyRequest) Validate() error {
+	if r.ContractVersion == "" {
+		return NewValidationError("contractVersion cannot be empty")
+	}
+
+	if r.KeyID == "" {
+		return NewValidationError("keyId cannot be empty")
+	}
+
+	return nil
+}
+
 // DescribeKeyResponse is the response of a describe-key request.
 type DescribeKeyResponse struct {
 	// The same key id as passed in the request.

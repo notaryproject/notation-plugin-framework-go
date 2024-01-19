@@ -51,7 +51,7 @@ func getValidArgs(md *plugin.GetMetadataResponse) []string {
 
 // deliverError print to standard error and then return nonzero exit code
 func deliverError(message string) {
-	_, _ = fmt.Fprintln(os.Stderr, message)
+	_, _ = fmt.Fprint(os.Stderr, message)
 	os.Exit(1)
 }
 

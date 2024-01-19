@@ -48,6 +48,7 @@ type Command string
 // Request defines a plugin request, which is always associated to a command.
 type Request interface {
 	Command() Command
+	Validate() error
 }
 
 const (

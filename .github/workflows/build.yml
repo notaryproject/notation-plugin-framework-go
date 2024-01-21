@@ -21,6 +21,6 @@ on:
 
 jobs:
   build:
-    uses: priteshbandi/notation-core-go/.github/workflows/reusable-build.yml@main
+    uses: notaryproject/notation-core-go/.github/workflows/reusable-build.yml@main
     with:
       run-e2e-tests: true

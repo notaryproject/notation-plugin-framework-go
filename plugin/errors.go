@@ -34,8 +34,7 @@ const (
 	ErrorMsgMalformedOutputFmt string = "Failed to generate response. Error: %s"
 )
 
-// Error is used when the signature associated is no longer
-// valid.
+// Error is used to return a well-formed error response as per NotaryProject specification.
 type Error struct {
 	ErrCode  ErrorCode         `json:"errorCode"`
 	Message  string            `json:"errorMessage,omitempty"`

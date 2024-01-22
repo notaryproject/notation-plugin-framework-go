@@ -141,7 +141,7 @@ func (c *CLI) unmarshalRequest(request plugin.Request) error {
 	}
 
 	if err := request.Validate(); err != nil {
-		c.logger.Errorf("%s validation error :%v", reflect.TypeOf(request), err)
+		c.logger.Errorf("%s validation error: %v", reflect.TypeOf(request), err)
 		if e, ok := err.(*plugin.Error); ok {
 			return plugin.NewValidationErrorf("%s: %s", plugin.ErrorMsgMalformedInput, e.Message)
 		}

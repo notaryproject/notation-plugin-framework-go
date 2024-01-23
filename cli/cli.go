@@ -17,7 +17,6 @@
 // 2. Read and unmarshal input
 // 3. Execute relevant plugin functions
 // 4. marshals output
-
 package cli
 
 import (
@@ -123,7 +122,7 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 func (c *CLI) printVersion(ctx context.Context) {
 	md := c.getMetadata(ctx, c.pl)
 
-	fmt.Printf("%s - %s\nVersion: %s \n", md.Name, md.Description, md.Version)
+	fmt.Printf("%s - %s\nVersion: %s\n", md.Name, md.Description, md.Version)
 }
 
 // validateArgs validate commands/arguments passed to executable.
@@ -135,11 +134,21 @@ func (c *CLI) validateArgs(ctx context.Context, args []string) {
 }
 
 // unmarshalRequest reads input from std.in and unmarshal it into given request struct
-func (c *CLI) unmarshalRequest(request any) error {
+func (c *CLI) unmarshalRequest(request plugin.Request) error {
 	if err := json.NewDecoder(os.Stdin).Decode(request); err != nil {
 		c.logger.Errorf("%s unmarshalling error :%v", reflect.TypeOf(request), err)
 		return plugin.NewJSONParsingError(plugin.ErrorMsgMalformedInput)
 	}
+
+	if err := request.Validate(); err != nil {
+		c.logger.Errorf("%s validation error :%v", reflect.TypeOf(request), err)
+		var plError *plugin.Error
+		if errors.As(err, &plError) {
+			return plugin.NewValidationErrorf("%s: %s", plugin.ErrorMsgMalformedInput, plError.Message)
+		}
+		return plugin.NewValidationErrorf("%s", plugin.ErrorMsgMalformedInput)
+	}
+
 	return nil
 }
 

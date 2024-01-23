@@ -23,6 +23,11 @@ func (GetMetadataRequest) Command() Command {
 	return CommandGetMetadata
 }
 
+// Validate validates GetMetadataRequest struct
+func (GetMetadataRequest) Validate() error {
+	return nil
+}
+
 // GetMetadataResponse provided by the plugin.
 type GetMetadataResponse struct {
 	Name                      string       `json:"name"`

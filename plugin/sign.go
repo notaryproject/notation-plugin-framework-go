@@ -28,6 +28,31 @@ func (GenerateSignatureRequest) Command() Command {
 	return CommandGenerateSignature
 }
 
+// Validate validates GenerateSignatureRequest struct
+func (r GenerateSignatureRequest) Validate() error {
+	if r.ContractVersion == "" {
+		return NewValidationError("contractVersion cannot be empty")
+	}
+
+	if r.KeyID == "" {
+		return NewValidationError("keyId cannot be empty")
+	}
+
+	if r.KeySpec == "" {
+		return NewValidationError("keySpec cannot be empty")
+	}
+
+	if r.Hash == "" {
+		return NewValidationError("hashAlgorithm cannot be empty")
+	}
+
+	if len(r.Payload) == 0 {
+		return NewValidationError("payload cannot be empty")
+	}
+
+	return nil
+}
+
 // GenerateSignatureResponse is the response of a generate-signature request.
 type GenerateSignatureResponse struct {
 	KeyID            string             `json:"keyId"`
@@ -53,6 +78,31 @@ type GenerateEnvelopeRequest struct {
 
 func (GenerateEnvelopeRequest) Command() Command {
 	return CommandGenerateEnvelope
+}
+
+// Validate validates GenerateEnvelopeRequest struct
+func (r GenerateEnvelopeRequest) Validate() error {
+	if r.ContractVersion == "" {
+		return NewValidationError("contractVersion cannot be empty")
+	}
+
+	if r.KeyID == "" {
+		return NewValidationError("keyId cannot be empty")
+	}
+
+	if r.PayloadType == "" {
+		return NewValidationError("payloadType cannot be empty")
+	}
+
+	if r.SignatureEnvelopeType == "" {
+		return NewValidationError("signatureEnvelopeType cannot be empty")
+	}
+
+	if len(r.Payload) == 0 {
+		return NewValidationError("payload cannot be empty")
+	}
+
+	return nil
 }
 
 // GenerateEnvelopeResponse is the response of a generate-envelope request.

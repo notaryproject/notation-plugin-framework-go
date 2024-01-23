@@ -14,6 +14,8 @@
 # limitations under the License.
 
 # build example plugins for e2e tests
+echo "building example plugins..."
+echo "=============================="
 CWD=$(pwd)
 PLUGIN_NAME=com.example.plugin
 plugin_directories=( envelopegenerator signaturegenerator )
@@ -22,11 +24,7 @@ do
   (cd "../../example/${plugin_directory}" && go build -o "$CWD/bin/${plugin_directory}/$PLUGIN_NAME" . && echo "e2e ${plugin_directory} plugin built")
 done
 
-echo "${plugin_paths[0]}"
-
-
-# run tests
+# run e2e tests
 echo "running e2e tests..."
 echo "=============================="
-
 go test -race -v ./... -args -env_gen_plugin="./bin/${plugin_directories[0]}/$PLUGIN_NAME" - sig_gen_plugin="./bin/${plugin_directories[1]}/$PLUGIN_NAME"

@@ -136,12 +136,12 @@ func (c *CLI) validateArgs(ctx context.Context, args []string) {
 // unmarshalRequest reads input from std.in and unmarshal it into given request struct
 func (c *CLI) unmarshalRequest(request plugin.Request) error {
 	if err := json.NewDecoder(os.Stdin).Decode(request); err != nil {
-		c.logger.Errorf("%s unmarshalling error :%v", reflect.TypeOf(request), err)
+		c.logger.Errorf("%s unmarshalling error: %v", reflect.TypeOf(request), err)
 		return plugin.NewJSONParsingError(plugin.ErrorMsgMalformedInput)
 	}
 
 	if err := request.Validate(); err != nil {
-		c.logger.Errorf("%s validation error :%v", reflect.TypeOf(request), err)
+		c.logger.Errorf("%s validation error: %v", reflect.TypeOf(request), err)
 		var plError *plugin.Error
 		if errors.As(err, &plError) {
 			return plugin.NewValidationErrorf("%s: %s", plugin.ErrorMsgMalformedInput, plError.Message)
@@ -155,7 +155,7 @@ func (c *CLI) unmarshalRequest(request plugin.Request) error {
 func (c *CLI) getMetadata(ctx context.Context, p plugin.Plugin) *plugin.GetMetadataResponse {
 	md, err := p.GetMetadata(ctx, &plugin.GetMetadataRequest{})
 	if err != nil {
-		c.logger.Errorf("GetMetadataRequest error :%v", err)
+		c.logger.Errorf("GetMetadataRequest error: %v", err)
 		deliverError("Error: Failed to get plugin metadata.")
 	}
 	return md

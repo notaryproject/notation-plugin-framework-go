@@ -1,6 +1,20 @@
+// Copyright The Notary Project Authors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package plugin
 
 import (
+	"reflect"
 	"time"
 )
 
@@ -15,6 +29,43 @@ type VerifySignatureRequest struct {
 
 func (VerifySignatureRequest) Command() Command {
 	return CommandVerifySignature
+}
+
+// Validate validates VerifySignatureRequest struct
+func (r VerifySignatureRequest) Validate() error {
+	if r.ContractVersion == "" {
+		return NewValidationError("contractVersion cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.Signature, Signature{}) {
+		return NewValidationError("signature cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.Signature.CriticalAttributes, CriticalAttributes{}) {
+		return NewValidationError("signature's criticalAttributes cannot be empty")
+	}
+
+	if r.Signature.CriticalAttributes.ContentType == "" {
+		return NewValidationError("signature's criticalAttributes's contentType cannot be empty")
+	}
+
+	if r.Signature.CriticalAttributes.SigningScheme == "" {
+		return NewValidationError("signature's criticalAttributes's signingScheme cannot be empty")
+	}
+
+	if len(r.Signature.CertificateChain) == 0 {
+		return NewValidationError("signature's criticalAttributes's certificateChain cannot be empty")
+	}
+
+	if reflect.DeepEqual(r.TrustPolicy, TrustPolicy{}) {
+		return NewValidationError("signature's trustPolicy cannot be empty")
+	}
+
+	if len(r.TrustPolicy.SignatureVerification) == 0 {
+		return NewValidationError("signature's trustPolicy's signatureVerification cannot be empty")
+	}
+
+	return nil
 }
 
 // Signature represents a signature pulled from the envelope

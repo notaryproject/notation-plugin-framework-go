@@ -11,14 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slices
+go 1.20
 
-// Contains reports whether v is present in s.
-func Contains[E comparable](s []E, v E) bool {
-	for _, vs := range s {
-		if v == vs {
-			return true
-		}
-	}
-	return false
-}
+use ./../..

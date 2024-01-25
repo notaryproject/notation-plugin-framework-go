@@ -1,3 +1,16 @@
+// Copyright The Notary Project Authors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package plugin defines the protocol layer for communication between notation
 // and notation external plugin.
 package plugin
@@ -35,6 +48,7 @@ type Command string
 // Request defines a plugin request, which is always associated to a command.
 type Request interface {
 	Command() Command
+	Validate() error
 }
 
 const (

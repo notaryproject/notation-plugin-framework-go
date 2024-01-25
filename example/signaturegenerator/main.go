@@ -11,14 +11,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slices
+package main
 
-// Contains reports whether v is present in s.
-func Contains[E comparable](s []E, v E) bool {
-	for _, vs := range s {
-		if v == vs {
-			return true
-		}
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/notaryproject/notation-plugin-framework-go/cli"
+)
+
+func main() {
+	ctx := context.Background()
+	// Initialize plugin
+	plugin, err := NewExamplePlugin()
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to initialize plugin: %v\n", err)
+		os.Exit(2)
 	}
-	return false
+
+	// Create executable
+	pluginCli, err := cli.New(plugin)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "failed to create executable: %v\n", err)
+		os.Exit(3)
+	}
+	pluginCli.Execute(ctx, os.Args)
 }

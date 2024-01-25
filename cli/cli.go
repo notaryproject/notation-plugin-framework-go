@@ -1,10 +1,22 @@
+// Copyright The Notary Project Authors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package cli provides boilerplate code required to generate plugin executable.
 // At high level it performs following tasks
 // 1. Validate command arguments
 // 2. Read and unmarshal input
 // 3. Execute relevant plugin functions
 // 4. marshals output
-
 package cli
 
 import (
@@ -82,15 +94,16 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 			resp, err = c.pl.DescribeKey(ctx, &request)
 		}
 	case plugin.CommandGenerateSignature:
-		var request plugin.VerifySignatureRequest
+		var request plugin.GenerateSignatureRequest
 		err = c.unmarshalRequest(&request)
 		if err == nil {
-			c.logger.Debugf("executing %s plugin's VerifySignature function", reflect.TypeOf(c.pl))
-			resp, err = c.pl.VerifySignature(ctx, &request)
+			c.logger.Debugf("executing %s plugin's GenerateSignature function", reflect.TypeOf(c.pl))
+			resp, err = c.pl.GenerateSignature(ctx, &request)
 		}
 	case plugin.Version:
 		rescueStdOut()
 		c.printVersion(ctx)
+		return
 	default:
 		// should never happen
 		rescueStdOut()
@@ -102,15 +115,14 @@ func (c *CLI) Execute(ctx context.Context, args []string) {
 	if pluginErr != nil {
 		deliverError(pluginErr.Error())
 	}
-	fmt.Println(op)
+	fmt.Print(op)
 }
 
 // printVersion prints version of executable
 func (c *CLI) printVersion(ctx context.Context) {
 	md := c.getMetadata(ctx, c.pl)
 
-	fmt.Printf("%s - %s\nVersion: %s \n", md.Name, md.Description, md.Version)
-	os.Exit(0)
+	fmt.Printf("%s - %s\nVersion: %s\n", md.Name, md.Description, md.Version)
 }
 
 // validateArgs validate commands/arguments passed to executable.
@@ -122,18 +134,28 @@ func (c *CLI) validateArgs(ctx context.Context, args []string) {
 }
 
 // unmarshalRequest reads input from std.in and unmarshal it into given request struct
-func (c *CLI) unmarshalRequest(request any) error {
+func (c *CLI) unmarshalRequest(request plugin.Request) error {
 	if err := json.NewDecoder(os.Stdin).Decode(request); err != nil {
-		c.logger.Errorf("%s unmarshalling error :%v", reflect.TypeOf(request), err)
+		c.logger.Errorf("%s unmarshalling error: %v", reflect.TypeOf(request), err)
 		return plugin.NewJSONParsingError(plugin.ErrorMsgMalformedInput)
 	}
+
+	if err := request.Validate(); err != nil {
+		c.logger.Errorf("%s validation error: %v", reflect.TypeOf(request), err)
+		var plError *plugin.Error
+		if errors.As(err, &plError) {
+			return plugin.NewValidationErrorf("%s: %s", plugin.ErrorMsgMalformedInput, plError.Message)
+		}
+		return plugin.NewValidationErrorf("%s", plugin.ErrorMsgMalformedInput)
+	}
+
 	return nil
 }
 
 func (c *CLI) getMetadata(ctx context.Context, p plugin.Plugin) *plugin.GetMetadataResponse {
 	md, err := p.GetMetadata(ctx, &plugin.GetMetadataRequest{})
 	if err != nil {
-		c.logger.Errorf("GetMetadataRequest error :%v", err)
+		c.logger.Errorf("GetMetadataRequest error: %v", err)
 		deliverError("Error: Failed to get plugin metadata.")
 	}
 	return md

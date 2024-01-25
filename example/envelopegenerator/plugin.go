@@ -1,3 +1,16 @@
+// Copyright The Notary Project Authors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -13,15 +26,15 @@ func NewExamplePlugin() (*ExamplePlugin, error) {
 	return &ExamplePlugin{}, nil
 }
 
-func (p *ExamplePlugin) DescribeKey(ctx context.Context, req *plugin.DescribeKeyRequest) (*plugin.DescribeKeyResponse, error) {
+func (p *ExamplePlugin) DescribeKey(_ context.Context, _ *plugin.DescribeKeyRequest) (*plugin.DescribeKeyResponse, error) {
 	return nil, plugin.NewUnsupportedError("DescribeKey operation is not implemented by example plugin")
 }
 
-func (p *ExamplePlugin) GenerateSignature(ctx context.Context, req *plugin.GenerateSignatureRequest) (*plugin.GenerateSignatureResponse, error) {
+func (p *ExamplePlugin) GenerateSignature(_ context.Context, _ *plugin.GenerateSignatureRequest) (*plugin.GenerateSignatureResponse, error) {
 	return nil, plugin.NewUnsupportedError("GenerateSignature operation is not implemented by example plugin")
 }
 
-func (p *ExamplePlugin) GenerateEnvelope(ctx context.Context, req *plugin.GenerateEnvelopeRequest) (*plugin.GenerateEnvelopeResponse, error) {
+func (p *ExamplePlugin) GenerateEnvelope(_ context.Context, _ *plugin.GenerateEnvelopeRequest) (*plugin.GenerateEnvelopeResponse, error) {
 	sig := "eyJwYXlsb2FkIjoiZXlKMFlYSm5aWFJCY25ScFptRmpkQ0k2ZXlKa2FXZGxjM1FpT2lKemFHRXlOVFk2Wm1VM1pUa3pNek16T1RVd05qQmpNbVkxWlRZelkyWXpObUV6" +
 		"T0daaVlURXdNVGMyWmpFNE0ySTBNVFl6WVRVM09UUmxNRGd4WVRRNE1HRmlZbUUxWmlJc0ltMWxaR2xoVkhsd1pTSTZJbUZ3Y0d4cFkyRjBhVzl1TDNadVpDNWtiMk5yWlh" +
 		"JdVpHbHpkSEpwWW5WMGFXOXVMbTFoYm1sbVpYTjBMbll5SzJwemIyNGlMQ0p6YVhwbElqbzVOREo5ZlEiLCJwcm90ZWN0ZWQiOiJleUpoYkdjaU9pSlFVekkxTmlJc0ltTn" +
@@ -54,7 +67,7 @@ func (p *ExamplePlugin) GenerateEnvelope(ctx context.Context, req *plugin.Genera
 	}, nil
 }
 
-func (p *ExamplePlugin) VerifySignature(ctx context.Context, req *plugin.VerifySignatureRequest) (*plugin.VerifySignatureResponse, error) {
+func (p *ExamplePlugin) VerifySignature(_ context.Context, req *plugin.VerifySignatureRequest) (*plugin.VerifySignatureResponse, error) {
 	upAttrs := req.Signature.UnprocessedAttributes
 	pAttrs := make([]interface{}, len(upAttrs))
 	for i := range upAttrs {
@@ -76,12 +89,13 @@ func (p *ExamplePlugin) VerifySignature(ctx context.Context, req *plugin.VerifyS
 	}, nil
 }
 
-func (p *ExamplePlugin) GetMetadata(ctx context.Context, req *plugin.GetMetadataRequest) (*plugin.GetMetadataResponse, error) {
+func (p *ExamplePlugin) GetMetadata(_ context.Context, _ *plugin.GetMetadataRequest) (*plugin.GetMetadataResponse, error) {
 	return &plugin.GetMetadataResponse{
-		Name:        "Example Plugin",
-		Description: "This is an description of example plugin. 🍺",
-		URL:         "https://example.com/notation/plugin",
-		Version:     "1.0.0",
+		SupportedContractVersions: []string{plugin.ContractVersion},
+		Name:                      "com.example.plugin",
+		Description:               "This is an description of example plugin",
+		URL:                       "https://example.com/notation/plugin",
+		Version:                   "1.0.0",
 		Capabilities: []plugin.Capability{
 			plugin.CapabilityEnvelopeGenerator,
 			plugin.CapabilityTrustedIdentityVerifier,

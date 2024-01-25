@@ -22,6 +22,10 @@ all: test
 test: check-line-endings ## run unit tests
 	go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
 
+.PHONY: e2e
+e2e:
+	cd ./test/e2e && ./run.sh;
+
 .PHONY: clean
 clean:
 	git status --ignored --short | grep '^!! ' | sed 's/!! //' | xargs rm -rf

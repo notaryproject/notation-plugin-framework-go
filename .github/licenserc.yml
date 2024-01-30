@@ -35,7 +35,6 @@ header:
     - 'MAINTAINERS'
     - 'go.mod'
     - 'go.sum'
-    - 'go.work'
     - '**/testdata/**'
 
   comment: on-failure

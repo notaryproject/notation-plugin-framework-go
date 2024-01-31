@@ -25,7 +25,7 @@ Library documentation is available at [Go Reference](https://pkg.go.dev/github.c
 ## Example Plugins
 
 - [Signature generator](example/signaturegenerator/)
-- [Envelope generator](example/signaturegenerator/)
+- [Envelope generator](example/envelopegenerator/)
 
 ## Code of Conduct
 

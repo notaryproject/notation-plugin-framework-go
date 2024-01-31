@@ -27,4 +27,4 @@ done
 # run e2e tests
 echo "running e2e tests..."
 echo "=============================="
-go test -race -v ./... -args -env_gen_plugin="./bin/${plugin_directories[0]}/$PLUGIN_NAME" - sig_gen_plugin="./bin/${plugin_directories[1]}/$PLUGIN_NAME"
+go test -race -v ./... -args -env_gen_plugin="./bin/${plugin_directories[0]}/$PLUGIN_NAME" -sig_gen_plugin="./bin/${plugin_directories[1]}/$PLUGIN_NAME"

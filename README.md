@@ -14,12 +14,18 @@ Please visit [README](https://github.com/notaryproject/.github/blob/main/README.
 ## Table of Contents
 
 - [Documentation](#documentation)
+- [Example Plugins](#example-plugins)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
 ## Documentation
 
 Library documentation is available at [Go Reference](https://pkg.go.dev/github.com/notaryproject/notation-plugin-framework-go).
+
+## Example Plugins
+
+- [Signature generator](example/signaturegenerator/)
+- [Envelope generator](example/envelopegenerator/)
 
 ## Code of Conduct
 

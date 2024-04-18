@@ -41,3 +41,5 @@ jobs:
         run: make e2e
       - name: Upload coverage to codecov.io
         uses: codecov/codecov-action@0cfda1dd0a4ad9efc75517f399d859cd1ea4ced1 # v4.0.2
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
